@@ -8,13 +8,6 @@ gen_data.py generates training data for '<' function.
 ```bash
 $ python gen_data.py 10000 > train.txt
 $ python train_linear.py < train.txt
-$ python evaluate_linear.py
-```
-
-```bash
-100 200
--> a < b
-1 0.5
--> a > b
+$ python visualize_linear.py
 ```
 
