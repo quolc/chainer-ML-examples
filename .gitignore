@@ -1,0 +1,7 @@
+*.swp
+*.txt
+*.pdf
+*.dot
+*.model
+
+__pycache__/
