@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from net import Classifier
 from net import ThreePerceptron
 
-n_unit = 300
+n_unit = 6 
 
 # シリアライズしたモデルの読み込み
 model = Classifier(ThreePerceptron(n_unit))

@@ -14,9 +14,9 @@ from chainer import Chain
 from net import ThreePerceptron
 from net import Classifier
 
-batchsize = 50
+batchsize = 10
 n_epoch = 100
-n_unit = 300
+n_unit = 6
 
 # training data size
 N = int(input())

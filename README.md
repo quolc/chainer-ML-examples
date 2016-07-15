@@ -11,6 +11,6 @@ $ python train_linear.py < train.txt
 $ python visualize_linear.py
 ```
 
-### Example classification result (300 Hidden Units)
+### Example classification result (6 Hidden Units)
 
-<img src="https://dl.dropboxusercontent.com/u/1698760/github/three_swirl_300units.png" />
+<img src="https://dl.dropboxusercontent.com/u/1698760/github/three_checker_6units.png" />
