@@ -15,7 +15,7 @@ class SimplePerceptron(Chain):
         )
 
     def __call__(self, x):
-        return F.relu(self.l1(x))
+        return self.l1(x)
 
 # 分類器
 class Classifier(Chain):
