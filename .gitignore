@@ -3,5 +3,6 @@
 *.pdf
 *.dot
 *.model
+*.png
 
 __pycache__/
