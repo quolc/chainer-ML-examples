@@ -3,6 +3,8 @@
 *.pkl
 *.gz
 *.model
+*.png
+*.dot
 
 /__pycache__
 /tmp

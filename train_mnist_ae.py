@@ -13,22 +13,18 @@ import net
 from net import AutoEncoder
 from net import Regression
 
-parser = argparse.ArgumentParser(description="MNIST Auto-Encoder in Chainer")
+parser = argparse.ArgumentParser(description="MNIST Auto-Encoder Trainer in Chainer")
 # file loading settings
 parser.add_argument('--initmodel', '-m', default='',
                     help='Initialize the model from given file')
 parser.add_argument('--resume', '-r', default='',
                     help='Resume the optimization from snapshot')
 # computation/learning settings
-parser.add_argument('--gpu', '-g', default=-1, type=int,
-                    help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--epoch', '-e', default=20, type=int,
                     help='number of epochs to learn')
 parser.add_argument('--batchsize', '-b', type=int, default=100,
                     help='learning minibatch size')
 # network structure settings
-parser.add_argument('--net', '-n', choices=('simple', 'parallel'),
-                    default='simple', help='network type')
 parser.add_argument('--unit', '-u', default=1000, type=int,
                     help='number of units')
 parser.add_argument('--activation', '-a', choices=('relu', 'sigmoid'),
@@ -45,7 +41,6 @@ activation = args.activation
 print('MNIST Auto-Encoder in Chainer')
 print()
 
-print('network type: %s' % args.net)
 print('activation func: %s' % activation)
 print('# unit: %d' % n_units)
 
@@ -57,7 +52,6 @@ print('load MNIST dataset')
 mnist = data.load_mnist_data()
 mnist['data'] = mnist['data'].astype(np.float32)
 mnist['data'] /= 255
-mnist['target'] = mnist['target'].astype(np.int32) # label: not used for auto-encoder
 
 N = data.num_train
 x_train, x_test = np.split(mnist['data'], [N])          # pixels
@@ -84,7 +78,7 @@ for epoch in range(0, n_epoch):
 
         optimizer.update(model, x, t)
 
-        if epoch ==0 and i == 0:
+        if epoch == 0 and i == 0:
             with open('graph.dot', 'w') as o:
                 variable_style = {'shape': 'octagon', 'fillcolor': '#E0E0E0', 'style': 'filled'}
                 function_style = {'shape': 'record', 'fillcolor': '#6495ED', 'style': 'filled'}
@@ -103,5 +97,5 @@ for epoch in range(0, n_epoch):
     print('train mean loss={}, throughput={} images/sec'.format(sum_loss / N, throughput))
 
 print('save the model')
-serializers.save_npz('ae.model', model)
+serializers.save_npz('{}-{}units_batch{}-epoch{}.model'.format(activation, n_units, batchsize, n_epoch), model)
 

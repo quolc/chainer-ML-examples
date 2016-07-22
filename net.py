@@ -25,3 +25,6 @@ class Regression(chainer.Chain):
         report({'loss': self.loss}, self)
         return self.loss
 
+    def dump(self, x):
+        return self.predictor(x, False)
+
