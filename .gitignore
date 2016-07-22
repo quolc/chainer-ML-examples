@@ -1,0 +1,10 @@
+.DS_Store
+*.swp
+*.pkl
+*.gz
+*.model
+*.png
+*.dot
+
+/__pycache__
+/tmp
