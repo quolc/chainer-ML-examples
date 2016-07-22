@@ -24,6 +24,8 @@ parser.add_argument('--epoch', '-e', default=20, type=int,
                     help='number of epochs to learn')
 parser.add_argument('--batchsize', '-b', type=int, default=100,
                     help='learning minibatch size')
+parser.add_argument('--noise', '-n', default=0, type=float,
+                    help='ratio for adding noise')
 # network structure settings
 parser.add_argument('--unit', '-u', default=1000, type=int,
                     help='number of units')
@@ -46,6 +48,7 @@ print('# unit: %d' % n_units)
 
 print('# minibatch-size: %d' % batchsize)
 print('# epoch: %d' % n_epoch)
+print('noise ratio: %f' % args.noise)
 
 # prepare dataset
 print('load MNIST dataset')
@@ -54,8 +57,14 @@ mnist['data'] = mnist['data'].astype(np.float32)
 mnist['data'] /= 255
 
 N = data.num_train
-x_train, x_test = np.split(mnist['data'], [N])          # pixels
 y_train, y_test = np.split(mnist['data'].copy(), [N])   # same pixels for auto-encoding
+
+# add noise
+if args.noise > 0:
+    for data in mnist['data']:
+        perm = np.random.permutation(mnist['data'].shape[1])[:int(mnist['data'].shape[1] * args.noise)]
+        data[perm] = 0.0
+x_train, x_test = np.split(mnist['data'], [N])          # pixels
 
 # initialize model
 model = Regression(AutoEncoder(784, n_units, activation))
@@ -97,5 +106,5 @@ for epoch in range(0, n_epoch):
     print('train mean loss={}, throughput={} images/sec'.format(sum_loss / N, throughput))
 
 print('save the model')
-serializers.save_npz('{}-{}units_batch{}-epoch{}.model'.format(activation, n_units, batchsize, n_epoch), model)
+serializers.save_npz('{}-{}units_batch{}-epoch{}_noise{}.model'.format(activation, n_units, batchsize, n_epoch, args.noise), model)
 
