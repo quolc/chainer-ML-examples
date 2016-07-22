@@ -7,8 +7,8 @@ gen_data.py generates training data of swirling pattern.
 
 ```bash
 $ python gen_data.py 10000 > train.txt
-$ python train_linear.py < train.txt
-$ python visualize_linear.py
+$ python train_three.py < train.txt
+$ python visualize_three.py
 ```
 
 ### Example classification result (6 Hidden Units)
