@@ -173,5 +173,9 @@ print('done.')
 
 print()
 print('save the model')
-serializers.save_npz('sae_{}.model'.format(datetime.now().strftime('%Y%m%d%H%M')), model)
+serializers.save_npz('sae_{}{}_{}-{}_{}.model'.format(
+    args.units.replace(',', '-'),
+    '-untied' if args.untied else '',
+    n_epoch, n_epoch_fine,
+    datetime.now().strftime('%Y%m%d%H%M')), model)
 
