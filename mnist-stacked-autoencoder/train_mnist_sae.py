@@ -131,6 +131,7 @@ for idx in range(len(aes)):
         end = time.time()
         throughput = N / (end - start)
         print('    train mean loss={}, throughput={} data/sec'.format(sum_loss / N, throughput))
+        sys.stdout.flush()
 
     # prepare train data for next layer
     x = chainer.Variable(xp.array(train_data))
@@ -152,6 +153,7 @@ print()
 print('# whole network fine-tuning')
 for epoch in range(0, n_epoch_fine):
     print('  epoch {}'.format(epoch+1))
+
     perm = np.random.permutation(N)
     permed_data = xp.array(x_train[perm])
 
@@ -166,6 +168,7 @@ for epoch in range(0, n_epoch_fine):
     end = time.time()
     throughput = N / (end - start)
     print('    train mean loss={}, throughput={} data/sec'.format(sum_loss / N, throughput))
+    sys.stdout.flush()
 print('done.')
 
 print()

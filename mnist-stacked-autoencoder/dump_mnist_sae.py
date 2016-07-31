@@ -85,16 +85,19 @@ x = chainer.Variable(np.asarray(x_train[perm[0:args.num]]))
 
 # dump
 print()
-print('dumping images')
+print('# dumping images')
 for l in range(1, len(model.predictor)+1):
+    print('layer %d' % l)
     y = model.predictor(x, depth=l)
     for i in range(math.ceil(args.num/10)):
-        print('row', i+1)
+        print('.', end="")
+        sys.stdout.flush()
         for j in range(10):
             n = i*10 + j
             n1 = (i*2)*10 + j
             n2 = (i*2+1)*10 + j
             draw_digit_ae(x_train[perm[n]], n1, math.ceil(args.num/10)*2, 10)
             draw_digit_ae(y.data[n], n2, math.ceil(args.num/10)*2, 10)
+    print()
     plt.savefig('dump_{}.png'.format(l))
 
