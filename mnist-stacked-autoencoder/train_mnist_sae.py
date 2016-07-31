@@ -140,7 +140,7 @@ print('done.')
 
 print('save the model')
 serializers.save_npz('sae_{}{}_{}-{}_{}_nofine.model'.format(
-    args.units.replace(',', '-'),
+    args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
     n_epoch, n_epoch_fine,
     datetime.now().strftime('%Y%m%d%H%M')), model)
@@ -182,7 +182,7 @@ print()
 print('save the model')
 serializers.save_npz('sae_{}_{}{}_{}-{}_{}.model'.format(
     args.activation,
-    args.units.replace(',', '-'),
+    args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
     n_epoch, n_epoch_fine,
     datetime.now().strftime('%Y%m%d%H%M')), model)
