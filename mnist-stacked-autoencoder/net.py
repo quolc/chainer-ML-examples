@@ -26,7 +26,7 @@ class AutoEncoder(chainer.Chain):
         if self.tied:
             return F.dropout(F.linear(h1, F.transpose(self.l1.W), self.decoder_bias), train=train)
         else:
-            return F.dropout(self.l2(h1), train=train)
+            return F.dropout(self.activation(self.l2(h1)), train=train)
 
     def encode(self, x, train=True):
         return F.dropout(self.activation(self.l1(x)), train=train)
@@ -35,7 +35,7 @@ class AutoEncoder(chainer.Chain):
         if self.tied:
             return F.dropout(F.linear(x, F.transpose(self.l1.W), self.decoder_bias), train=train)
         else:
-            return F.dropout(self.l2(x), train=train)
+            return F.dropout(self.activation(self.l2(x)), train=train)
 
 class StackedAutoEncoder(chainer.ChainList):
     def __init__(self, autoencoders):
