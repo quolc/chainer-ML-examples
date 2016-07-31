@@ -1,7 +1,6 @@
 import chainer
 import chainer.functions as F
 import chainer.links as L
-#from chainer import report
 
 class AutoEncoder(chainer.Chain):
     def __init__(self, n_in, n_out, activation='relu', tied=True):
@@ -24,9 +23,9 @@ class AutoEncoder(chainer.Chain):
     def __call__(self, x, train=True):
         h1 = F.dropout(self.activation(self.l1(x)), train=train)
         if self.tied:
-            return F.dropout(F.linear(h1, F.transpose(self.l1.W), self.decoder_bias), train=train)
+            return F.linear(h1, F.transpose(self.l1.W), self.decoder_bias)
         else:
-            return F.dropout(self.activation(self.l2(h1)), train=train)
+            return self.activation(self.l2(h1))
 
     def encode(self, x, train=True):
         return F.dropout(self.activation(self.l1(x)), train=train)
@@ -49,6 +48,8 @@ class StackedAutoEncoder(chainer.ChainList):
         for i in range(depth):
             h = self[i].encode(h, train=train)
         for i in range(depth):
+            if i == depth-1: # do not use dropout in the output layer
+                train = False
             h = self[depth-1-i].decode(h, train=train)
         return h
 
@@ -63,6 +64,8 @@ class StackedAutoEncoder(chainer.ChainList):
         if depth == 0: depth = len(self)
         h = x
         for i in range(depth):
+            if i == depth-1: # do not use dropout in the output layer
+                train = False
             h = self[depth-1-i].decode(h, train=train)
         return h
 
@@ -73,7 +76,6 @@ class Regression(chainer.Chain):
     def __call__(self, x, t):
         y = self.predictor(x, True)
         self.loss = F.mean_squared_error(y, t)
-#        report({'loss': self.loss}, self)
         return self.loss
 
     def dump(self, x):
