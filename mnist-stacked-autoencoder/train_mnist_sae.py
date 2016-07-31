@@ -36,7 +36,7 @@ parser.add_argument('--noise', '-n', default=0, type=float,
 parser.add_argument('--unit', '-u', default='1000,500,250,2',
                     help='number of units (comma-separated)')
 parser.add_argument('--activation', '-a', choices=('relu', 'sigmoid'),
-                    default='relu', help="activation function")
+                    default='sigmoid', help="activation function")
 parser.add_argument('--untied', '-t', action='store_const', const=True, default=False)
 
 args = parser.parse_args()
@@ -180,7 +180,8 @@ print('done.')
 
 print()
 print('save the model')
-serializers.save_npz('sae_{}{}_{}-{}_{}.model'.format(
+serializers.save_npz('sae_{}_{}{}_{}-{}_{}.model'.format(
+    args.activation,
     args.units.replace(',', '-'),
     '-untied' if args.untied else '',
     n_epoch, n_epoch_fine,
