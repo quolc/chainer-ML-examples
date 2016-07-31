@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 
 import chainer
-from chainer import report
+#from chainer import report
 from chainer import optimizers, serializers
 from chainer import cuda
 
@@ -100,9 +100,10 @@ for idx in range(len(aes)):
 
     # type of train_data : np.ndarray
     if idx == 0:
-        train_data = xp.asarray(x_train)
+        train_data = x_train
     else:
         train_data = train_data_for_next_layer
+    print(type(train_data))
 
     # ToDo: adding noise to train_data
     input_data = train_data.copy() # train_data + noise
@@ -115,13 +116,14 @@ for idx in range(len(aes)):
     # training loop
     for epoch in range(0, n_epoch):
         print('  epoch {}'.format(epoch+1))
-        perm = xp.random.permutation(N)
+        perm = np.random.permutation(N)
+        permed_data = xp.array(input_data[perm])
 
         sum_loss = 0
         start = time.time()
         for i in range(0, N, batchsize):
-            x = chainer.Variable(input_data[perm[i:i+batchsize]])
-            y = chainer.Variable(train_data[perm[i:i+batchsize]])
+            x = chainer.Variable(permed_data[i:i+batchsize])
+            y = chainer.Variable(permed_data[i:i+batchsize])
 
             optimizer.update(model, x, y)
             sum_loss += float(model.loss.data) * len(y.data)
@@ -130,8 +132,8 @@ for idx in range(len(aes)):
         print('    train mean loss={}, throughput={} data/sec'.format(sum_loss / N, throughput))
 
     # prepare train data for next layer
-    x = chainer.Variable(train_data)
-    train_data_for_next_layer = ae.encode(x, train=False).data
+    x = chainer.Variable(xp.array(train_data))
+    train_data_for_next_layer = cuda.to_cpu(ae.encode(x, train=False).data)
 print('done.')
 
 # whole network fine-tuning
@@ -148,14 +150,15 @@ optimizer.setup(model)
 print()
 print('# whole network fine-tuning')
 for epoch in range(0, n_epoch_fine):
-    print ('  epoch', epoch+1)
-    perm = xp.random.permutation(N)
+    print('  epoch {}'.format(epoch+1))
+    perm = np.random.permutation(N)
+    permed_data = xp.array(x_train[perm])
 
     sum_loss = 0
     start = time.time()
     for i in range(0, N, batchsize):
-        x = chainer.Variable(x_train[perm[i:i+batchsize]])
-        y = chainer.Variable(x_train[perm[i:i+batchsize]])
+        x = chainer.Variable(permed_data[i:i+batchsize])
+        y = chainer.Variable(permed_data[i:i+batchsize])
 
         optimizer.update(model, x, y)
         sum_loss += float(model.loss.data) * len(y.data)

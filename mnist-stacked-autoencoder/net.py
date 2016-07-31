@@ -1,7 +1,7 @@
 import chainer
 import chainer.functions as F
 import chainer.links as L
-from chainer import report
+#from chainer import report
 
 class AutoEncoder(chainer.Chain):
     def __init__(self, n_in, n_out, activation):
@@ -59,7 +59,7 @@ class Regression(chainer.Chain):
     def __call__(self, x, t):
         y = self.predictor(x, True)
         self.loss = F.mean_squared_error(y, t)
-        report({'loss': self.loss}, self)
+#        report({'loss': self.loss}, self)
         return self.loss
 
     def dump(self, x):
