@@ -9,6 +9,7 @@ import numpy as np
 import chainer
 from chainer import report
 from chainer import optimizers, serializers
+from chainer import cuda
 
 import data
 import net
@@ -21,6 +22,8 @@ parser.add_argument('--initmodel', '-m', default='',
 parser.add_argument('--resume', '-r', default='',
                     help='Resume the optimization from snapshot')
 # computation/learning settings
+parser.add_argument('--gpu', '-g', type=int, default=-1,
+                    help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--epoch_pre', '-p', default=20, type=int,
                     help='number of epochs for pre-training')
 parser.add_argument('--epoch_fine', '-f', default=20, type=int,
@@ -51,50 +54,53 @@ print('[settings]')
 print('- activation func: %s' % activation)
 print('- structure: ', n_units)
 
+print('- GPU: %d' % args.gpu)
 print('- minibatch-size: %d' % batchsize)
 print('- epoch (pre-training): %d' % n_epoch)
 print('- epoch (fine-tuning): %d' % n_epoch_fine)
 print('- noise ratio: %f' % args.noise)
 
+# GPU setup
+xp = np
+if args.gpu >= 0:
+    chainer.cuda.get_device(args.gpu).use()
+    xp = cuda.cupy
+
 # prepare dataset
 print()
 print('# loading MNIST dataset')
 mnist = data.load_mnist_data()
-mnist['data'] = mnist['data'].astype(np.float32)
+mnist['data'] = mnist['data'].astype(xp.float32)
 mnist['data'] /= 255
 
 N = data.num_train
-x_train, x_test = np.split(mnist['data'], [N])
-label_train, label_test = np.split(mnist['target'], [N])
+x_train, x_test = xp.split(mnist['data'], [N])
+label_train, label_test = xp.split(mnist['target'], [N])
 
 print('- number of training data: {}'.format(N))
 print('done.')
-
-# add noise
-'''
-if args.noise > 0:
-    for data in mnist['data']:
-        perm = np.random.permutation(mnist['data'].shape[1])[:int(mnist['data'].shape[1] * args.noise)]
-        data[perm] = 0.0
-'''
 
 # prepare layers
 aes = []
 for idx in range(len(n_units)):
     n_in = n_units[idx-1] if idx > 0 else 28*28
     n_out = n_units[idx]
-    aes.append(AutoEncoder(n_in, n_out, activation))
+    ae = AutoEncoder(n_in, n_out, activation)
+    aes.append(ae)
 
 # layer-wise pre-training
 print()
 print('# layer-wise pre-training')
 for idx in range(len(aes)):
     ae = aes[idx]
+    if args.gpu >= 0:
+        ae.to_gpu()
+
     print('training layer #{} ({} -> {})'.format(idx+1, ae.n_in, ae.n_out))
 
     # type of train_data : np.ndarray
     if idx == 0:
-        train_data = np.asarray(x_train)
+        train_data = xp.asarray(x_train)
     else:
         train_data = train_data_for_next_layer
 
@@ -109,7 +115,7 @@ for idx in range(len(aes)):
     # training loop
     for epoch in range(0, n_epoch):
         print('  epoch {}'.format(epoch+1))
-        perm = np.random.permutation(N)
+        perm = xp.random.permutation(N)
 
         sum_loss = 0
         start = time.time()
@@ -133,6 +139,9 @@ aes_copy = []
 for ae in aes:
     aes_copy.append(ae.copy())
 model = Regression(StackedAutoEncoder(aes_copy))
+if args.gpu >= 0:
+    model.to_gpu()
+
 optimizer = optimizers.Adam()
 optimizer.setup(model)
 
@@ -140,7 +149,7 @@ print()
 print('# whole network fine-tuning')
 for epoch in range(0, n_epoch_fine):
     print ('  epoch', epoch+1)
-    perm = np.random.permutation(N)
+    perm = xp.random.permutation(N)
 
     sum_loss = 0
     start = time.time()

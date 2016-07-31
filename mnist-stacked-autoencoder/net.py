@@ -13,14 +13,14 @@ class AutoEncoder(chainer.Chain):
         self.n_out = n_out
         self.activation = {'relu': F.relu, 'sigmoid': F.sigmoid}[activation]
 
-    def __call__(self, x, train=False):
+    def __call__(self, x, train=True):
         h1 = F.dropout(self.activation(self.l1(x)), train=train)
         return F.dropout(self.l2(h1), train=train)
 
-    def encode(self, x, train=False):
+    def encode(self, x, train=True):
         return F.dropout(self.activation(self.l1(x)), train=train)
 
-    def decode(self, x, train=False):
+    def decode(self, x, train=True):
         return F.dropout(self.l2(x), train=train)
 
 class StackedAutoEncoder(chainer.ChainList):
@@ -29,7 +29,7 @@ class StackedAutoEncoder(chainer.ChainList):
         for ae in autoencoders:
             self.add_link(ae)
 
-    def __call__(self, x, train=False, depth=0):
+    def __call__(self, x, train=True, depth=0):
         if depth == 0: depth = len(self)
         h = x
         for i in range(depth):
@@ -38,14 +38,14 @@ class StackedAutoEncoder(chainer.ChainList):
             h = self[depth-1-i].decode(h, train=train)
         return h
 
-    def encode(self, x, train=False, depth=0):
+    def encode(self, x, train=True, depth=0):
         if depth == 0: depth = len(self)
         h = x
         for i in range(depth):
             h = self[i].encode(h, train=train)
         return h
 
-    def decode(self, x, train=False, depth=0):
+    def decode(self, x, train=True, depth=0):
         if depth == 0: depth = len(self)
         h = x
         for i in range(depth):
