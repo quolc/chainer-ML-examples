@@ -103,14 +103,13 @@ for idx in range(len(aes)):
         train_data = x_train
     else:
         train_data = train_data_for_next_layer
-    print(type(train_data))
 
     # ToDo: adding noise to train_data
     input_data = train_data.copy() # train_data + noise
 
     # prepare regression model and optimizer
     model = Regression(ae)
-    optimizer = optimizers.Adam()
+    optimizer = optimizers.MomentumSGD()
     optimizer.setup(model)
 
     # training loop
@@ -144,7 +143,7 @@ model = Regression(StackedAutoEncoder(aes_copy))
 if args.gpu >= 0:
     model.to_gpu()
 
-optimizer = optimizers.Adam()
+optimizer = optimizers.MomentumSGD()
 optimizer.setup(model)
 
 print()
