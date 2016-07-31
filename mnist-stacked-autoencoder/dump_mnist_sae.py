@@ -42,7 +42,7 @@ parser.add_argument('--num', '-n', default=50, type=int,
 parser.add_argument('--unit', '-u', default='1000,500,250,2',
                     help='number of units')
 parser.add_argument('--activation', '-a', choices=('relu', 'sigmoid'),
-                    default='relu', help="activation function")
+                    default='sigmoid', help="activation function")
 parser.add_argument('--untied', '-t', action='store_const', const=True, default=False)
 
 args = parser.parse_args()

@@ -138,13 +138,6 @@ for idx in range(len(aes)):
     train_data_for_next_layer = cuda.to_cpu(ae.encode(x, train=False).data)
 print('done.')
 
-print('save the model')
-serializers.save_npz('sae_{}{}_{}-{}_{}_nofine.model'.format(
-    args.unit.replace(',', '-'),
-    '-untied' if args.untied else '',
-    n_epoch, n_epoch_fine,
-    datetime.now().strftime('%Y%m%d%H%M')), model)
-
 # whole network fine-tuning
 aes_copy = []
 for ae in aes:
@@ -155,6 +148,14 @@ if args.gpu >= 0:
 
 optimizer = optimizers.MomentumSGD()
 optimizer.setup(model)
+
+print('save the intermediate model')
+serializers.save_npz('sae_{}-{}{}_{}-{}_{}_nofine.model'.format(
+    args.activation,
+    args.unit.replace(',', '-'),
+    '-untied' if args.untied else '',
+    n_epoch, n_epoch_fine,
+    datetime.now().strftime('%Y%m%d%H%M')), model)
 
 print()
 print('# whole network fine-tuning')
