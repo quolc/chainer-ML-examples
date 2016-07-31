@@ -37,6 +37,7 @@ parser.add_argument('--unit', '-u', default='1000,500,250,2',
                     help='number of units (comma-separated)')
 parser.add_argument('--activation', '-a', choices=('relu', 'sigmoid'),
                     default='relu', help="activation function")
+parser.add_argument('--untied', '-t', action='store_const', const=True, default=False)
 
 args = parser.parse_args()
 
@@ -52,7 +53,8 @@ print('MNIST Stacked Auto-Encoder in Chainer')
 print()
 print('[settings]')
 print('- activation func: %s' % activation)
-print('- structure: ', n_units)
+print('- structure: {}'.format(n_units))
+print('- tied: {}'.format(not(args.untied)))
 
 print('- GPU: %d' % args.gpu)
 print('- minibatch-size: %d' % batchsize)
@@ -85,7 +87,7 @@ aes = []
 for idx in range(len(n_units)):
     n_in = n_units[idx-1] if idx > 0 else 28*28
     n_out = n_units[idx]
-    ae = AutoEncoder(n_in, n_out, activation)
+    ae = AutoEncoder(n_in, n_out, activation, not(args.untied))
     aes.append(ae)
 
 # layer-wise pre-training

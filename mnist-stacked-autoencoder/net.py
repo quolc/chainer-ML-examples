@@ -4,24 +4,38 @@ import chainer.links as L
 #from chainer import report
 
 class AutoEncoder(chainer.Chain):
-    def __init__(self, n_in, n_out, activation):
-        super(AutoEncoder, self).__init__(
-            l1 = L.Linear(n_in, n_out),
-            l2 = L.Linear(n_out, n_in)
-        )
+    def __init__(self, n_in, n_out, activation='relu', tied=True):
+        if tied:
+            super(AutoEncoder, self).__init__(
+                l1 = L.Linear(n_in, n_out)
+            )
+            self.add_param('decoder_bias', n_in)
+            self.decoder_bias.data[...] = 0
+        else:
+            super(AutoEncoder, self).__init__(
+                l1 = L.Linear(n_in, n_out),
+                l2 = L.Linear(n_out, n_in)
+            )
+        self.tied = tied
         self.n_in = n_in
         self.n_out = n_out
         self.activation = {'relu': F.relu, 'sigmoid': F.sigmoid}[activation]
 
     def __call__(self, x, train=True):
         h1 = F.dropout(self.activation(self.l1(x)), train=train)
-        return F.dropout(self.l2(h1), train=train)
+        if self.tied:
+            return F.dropout(F.linear(h1, F.transpose(self.l1.W), self.decoder_bias), train=train)
+        else:
+            return F.dropout(self.l2(h1), train=train)
 
     def encode(self, x, train=True):
         return F.dropout(self.activation(self.l1(x)), train=train)
 
     def decode(self, x, train=True):
-        return F.dropout(self.l2(x), train=train)
+        if self.tied:
+            return F.dropout(F.linear(x, F.transpose(self.l1.W), self.decoder_bias), train=train)
+        else:
+            return F.dropout(self.l2(x), train=train)
 
 class StackedAutoEncoder(chainer.ChainList):
     def __init__(self, autoencoders):
