@@ -152,11 +152,12 @@ optimizer = optimizers.MomentumSGD(args.learningrate)
 optimizer.setup(model)
 
 print('save the intermediate model')
-serializers.save_npz('sae_{}-{}{}_{}-{}_{}_nofine.model'.format(
+serializers.save_npz('sae_{}-{}{}_lr{}_p{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
-    n_epoch, n_epoch_fine,
+    args.learningrate,
+    n_epoch,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
 print()
@@ -183,10 +184,11 @@ print('done.')
 
 print()
 print('save the model')
-serializers.save_npz('sae_{}-{}{}_{}-{}_{}.model'.format(
+serializers.save_npz('sae_{}-{}{}_lr{}_p{}-f{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
+    args.learningrate,
     n_epoch, n_epoch_fine,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
