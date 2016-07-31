@@ -138,6 +138,13 @@ for idx in range(len(aes)):
     train_data_for_next_layer = cuda.to_cpu(ae.encode(x, train=False).data)
 print('done.')
 
+print('save the model')
+serializers.save_npz('sae_{}{}_{}-{}_{}_nofine.model'.format(
+    args.units.replace(',', '-'),
+    '-untied' if args.untied else '',
+    n_epoch, n_epoch_fine,
+    datetime.now().strftime('%Y%m%d%H%M')), model)
+
 # whole network fine-tuning
 aes_copy = []
 for ae in aes:
