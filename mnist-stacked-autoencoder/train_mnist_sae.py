@@ -32,6 +32,8 @@ parser.add_argument('--batchsize', '-b', type=int, default=100,
                     help='learning minibatch size')
 parser.add_argument('--noise', '-n', default=0, type=float,
                     help='ratio for adding noise')
+parser.add_argument('--learningrate', '-l', type=float, default=0.01,
+                    help='learning rate')
 # network structure settings
 parser.add_argument('--unit', '-u', default='1000,500,250,2',
                     help='number of units (comma-separated)')
@@ -111,7 +113,7 @@ for idx in range(len(aes)):
 
     # prepare regression model and optimizer
     model = Regression(ae)
-    optimizer = optimizers.MomentumSGD()
+    optimizer = optimizers.MomentumSGD(args.learningrate)
     optimizer.setup(model)
 
     # training loop
@@ -146,7 +148,7 @@ model = Regression(StackedAutoEncoder(aes_copy))
 if args.gpu >= 0:
     model.to_gpu()
 
-optimizer = optimizers.MomentumSGD()
+optimizer = optimizers.MomentumSGD(args.learningrate)
 optimizer.setup(model)
 
 print('save the intermediate model')
@@ -181,7 +183,7 @@ print('done.')
 
 print()
 print('save the model')
-serializers.save_npz('sae_{}_{}{}_{}-{}_{}.model'.format(
+serializers.save_npz('sae_{}-{}{}_{}-{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
