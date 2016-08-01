@@ -32,8 +32,10 @@ parser.add_argument('--batchsize', '-b', type=int, default=100,
                     help='learning minibatch size')
 parser.add_argument('--noise', '-n', default=0, type=float,
                     help='ratio for adding noise')
+parser.add_argument('--optimizer', '-o', choices=('adam', 'momentumsgd'),
+                    default='adam', help='optimizer')
 parser.add_argument('--learningrate', '-l', type=float, default=0.01,
-                    help='learning rate')
+                    help='learning rate (only for momentum SGD)')
 # network structure settings
 parser.add_argument('--unit', '-u', default='1000,500,250,2',
                     help='number of units (comma-separated)')
@@ -62,8 +64,11 @@ print('- GPU: %d' % args.gpu)
 print('- minibatch-size: %d' % batchsize)
 print('- epoch (pre-training): %d' % n_epoch)
 print('- epoch (fine-tuning): %d' % n_epoch_fine)
-print('- learning rate: %f' % args.learningrate)
-print('- noise ratio: %f' % args.noise)
+
+print('- optimizer: %s' % args.optimizer)
+if args.optimizer == 'momentumsgd':
+    print('- learning rate: %f' % args.learningrate)
+#print('- noise ratio: %f' % args.noise)
 
 # GPU setup
 xp = np
@@ -114,8 +119,10 @@ for idx in range(len(aes)):
 
     # prepare regression model and optimizer
     model = Regression(ae)
-    #optimizer = optimizers.MomentumSGD(args.learningrate)
-    optimizer = optimizers.Adam()
+    if args.optimizer == 'adam':
+        optimizer = optimizers.Adam()
+    elif args.optimizer == 'momentumsgd':
+        optimizer = optimizers.MomentumSGD(args.learningrate)
     optimizer.setup(model)
 
     # training loop
@@ -150,16 +157,19 @@ model = Regression(StackedAutoEncoder(aes_copy))
 if args.gpu >= 0:
     model.to_gpu()
 
-#optimizer = optimizers.MomentumSGD(args.learningrate)
-optimizer = optimizers.Adam()
+if args.optimizer == 'adam':
+    optimizer = optimizers.Adam()
+elif args.optimizer == 'momentumsgd':
+    optimizer = optimizers.MomentumSGD(args.learningrate)
+
 optimizer.setup(model)
 
 print('save the intermediate model')
-serializers.save_npz('sae_{}-{}{}_lr{}_p{}_{}.model'.format(
+serializers.save_npz('sae_{}-{}{}_{}_p{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
-    args.learningrate,
+    args.optimizer + (args.learningrate if args.optimizer == 'momentumsgd' else ''),
     n_epoch,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
@@ -187,11 +197,11 @@ print('done.')
 
 print()
 print('save the model')
-serializers.save_npz('sae_{}-{}{}_lr{}_p{}-f{}_{}.model'.format(
+serializers.save_npz('sae_{}-{}{}_{}_p{}-f{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
-    args.learningrate,
+    args.optimizer + (args.learningrate if args.optimizer == 'momentumsgd' else ''),
     n_epoch, n_epoch_fine,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
