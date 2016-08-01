@@ -62,6 +62,7 @@ print('- GPU: %d' % args.gpu)
 print('- minibatch-size: %d' % batchsize)
 print('- epoch (pre-training): %d' % n_epoch)
 print('- epoch (fine-tuning): %d' % n_epoch_fine)
+print('- learning rate: %f' % args.learningrate)
 print('- noise ratio: %f' % args.noise)
 
 # GPU setup

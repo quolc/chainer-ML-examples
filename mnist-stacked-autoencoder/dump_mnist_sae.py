@@ -28,8 +28,18 @@ def draw_digit_ae(data, n, row, col):
     Z = Z[::-1,:]                 # flip vertical
     sp.pcolor(Z)
 
-    sp.tick_params(labelbottom="off")
-    sp.tick_params(labelleft="off")
+    sp.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+    sp.tick_params(
+        axis='y',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        left='off',      # ticks along the bottom edge are off
+        right='off',         # ticks along the top edge are off
+        labelleft='off') # labels along the bottom edge are off
     sp.axis('scaled')
     sp.axis([0, 28, 0, 28])
 
