@@ -23,7 +23,7 @@ class AutoEncoder(chainer.Chain):
     def __call__(self, x, train=True):
         h1 = F.dropout(self.activation(self.l1(x)), train=train)
         if self.tied:
-            return F.linear(h1, F.transpose(self.l1.W), self.decoder_bias)
+            return self.activation(F.linear(h1, F.transpose(self.l1.W), self.decoder_bias))
         else:
             return self.activation(self.l2(h1))
 
@@ -32,7 +32,7 @@ class AutoEncoder(chainer.Chain):
 
     def decode(self, x, train=True):
         if self.tied:
-            return F.dropout(F.linear(x, F.transpose(self.l1.W), self.decoder_bias), train=train)
+            return F.dropout(self.activation(F.linear(x, F.transpose(self.l1.W), self.decoder_bias)), train=train)
         else:
             return F.dropout(self.activation(self.l2(x)), train=train)
 
