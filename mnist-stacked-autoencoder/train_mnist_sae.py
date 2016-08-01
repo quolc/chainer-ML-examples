@@ -34,8 +34,10 @@ parser.add_argument('--noise', '-n', default=0, type=float,
                     help='ratio for adding noise')
 parser.add_argument('--optimizer', '-o', choices=('adam', 'momentumsgd'),
                     default='adam', help='optimizer')
-parser.add_argument('--learningrate', '-l', type=float, default=0.01,
+parser.add_argument('--learningrate',  type=float, default=0.01,
                     help='learning rate (only for momentum SGD)')
+parser.add_argument('--alpha', type=float, default=0.001,
+                    help='alpha (only for Adam)')
 # network structure settings
 parser.add_argument('--unit', '-u', default='1000,500,250,2',
                     help='number of units (comma-separated)')
@@ -68,6 +70,8 @@ print('- epoch (fine-tuning): %d' % n_epoch_fine)
 print('- optimizer: %s' % args.optimizer)
 if args.optimizer == 'momentumsgd':
     print('- learning rate: %f' % args.learningrate)
+if args.optimizer == 'adam':
+    print('- alpha: %f' % args.alpha)
 #print('- noise ratio: %f' % args.noise)
 
 # GPU setup
@@ -120,7 +124,7 @@ for idx in range(len(aes)):
     # prepare regression model and optimizer
     model = Regression(ae)
     if args.optimizer == 'adam':
-        optimizer = optimizers.Adam()
+        optimizer = optimizers.Adam(args.alpha)
     elif args.optimizer == 'momentumsgd':
         optimizer = optimizers.MomentumSGD(args.learningrate)
     optimizer.setup(model)
@@ -158,7 +162,7 @@ if args.gpu >= 0:
     model.to_gpu()
 
 if args.optimizer == 'adam':
-    optimizer = optimizers.Adam()
+    optimizer = optimizers.Adam(args.alpha)
 elif args.optimizer == 'momentumsgd':
     optimizer = optimizers.MomentumSGD(args.learningrate)
 
@@ -169,7 +173,9 @@ serializers.save_npz('sae_{}-{}{}_{}_p{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
-    args.optimizer + (args.learningrate if args.optimizer == 'momentumsgd' else ''),
+    args.optimizer
+        + (args.learningrate if args.optimizer == 'momentumsgd' else '')
+        + (args.alpha if args.optimizer == 'adam' else ''),
     n_epoch,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
@@ -201,7 +207,9 @@ serializers.save_npz('sae_{}-{}{}_{}_p{}-f{}_{}.model'.format(
     args.activation,
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
-    args.optimizer + (args.learningrate if args.optimizer == 'momentumsgd' else ''),
+    args.optimizer
+        + (args.learningrate if args.optimizer == 'momentumsgd' else '')
+        + (args.alpha if args.optimizer == 'adam' else ''),
     n_epoch, n_epoch_fine,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
