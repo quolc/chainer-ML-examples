@@ -114,7 +114,8 @@ for idx in range(len(aes)):
 
     # prepare regression model and optimizer
     model = Regression(ae)
-    optimizer = optimizers.MomentumSGD(args.learningrate)
+    #optimizer = optimizers.MomentumSGD(args.learningrate)
+    optimizer = optimizers.Adam()
     optimizer.setup(model)
 
     # training loop
@@ -149,7 +150,8 @@ model = Regression(StackedAutoEncoder(aes_copy))
 if args.gpu >= 0:
     model.to_gpu()
 
-optimizer = optimizers.MomentumSGD(args.learningrate)
+#optimizer = optimizers.MomentumSGD(args.learningrate)
+optimizer = optimizers.Adam()
 optimizer.setup(model)
 
 print('save the intermediate model')
