@@ -174,8 +174,8 @@ serializers.save_npz('sae_{}-{}{}_{}_p{}_{}.model'.format(
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
     args.optimizer
-        + (args.learningrate if args.optimizer == 'momentumsgd' else '')
-        + (args.alpha if args.optimizer == 'adam' else ''),
+        + (str(args.learningrate) if args.optimizer == 'momentumsgd' else '')
+        + (str(args.alpha) if args.optimizer == 'adam' else ''),
     n_epoch,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
@@ -208,8 +208,8 @@ serializers.save_npz('sae_{}-{}{}_{}_p{}-f{}_{}.model'.format(
     args.unit.replace(',', '-'),
     '-untied' if args.untied else '',
     args.optimizer
-        + (args.learningrate if args.optimizer == 'momentumsgd' else '')
-        + (args.alpha if args.optimizer == 'adam' else ''),
+        + (str(args.learningrate) if args.optimizer == 'momentumsgd' else '')
+        + (str(args.alpha) if args.optimizer == 'adam' else ''),
     n_epoch, n_epoch_fine,
     datetime.now().strftime('%Y%m%d%H%M')), model)
 
