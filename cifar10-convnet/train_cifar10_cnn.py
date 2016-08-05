@@ -56,13 +56,13 @@ if args.gpu >= 0:
 
 print('# loading CIFAR-10 dataset')
 cifar = data.loadCifar10()
-x_train = xp.asarray(cifar['x_train'], dtype='float32')
+x_train = np.asarray(cifar['x_train'], dtype='float32')
 x_train /= 255
-x_test = xp.asarray(cifar['x_test'], dtype='float32')
+x_test = np.asarray(cifar['x_test'], dtype='float32')
 x_test /= 255
 
-y_train = xp.asarray(cifar['y_train'], dtype='int32')
-y_test = xp.asarray(cifar['y_test'], dtype='int32')
+y_train = np.asarray(cifar['y_train'], dtype='int32')
+y_test = np.asarray(cifar['y_test'], dtype='int32')
 
 N = data.num_train
 N_test = data.num_test
@@ -94,8 +94,8 @@ for epoch in range(0, n_epoch):
     print('epoch', epoch+1)
 
     perm = np.random.permutation(N)
-    permed_data = xp.array(x_train[perm])
-    permed_target = xp.array(y_train[perm])
+    permed_data = xp.asarray(x_train[perm])
+    permed_target = xp.asarray(y_train[perm])
 
     sum_accuracy = 0
     sum_loss = 0
@@ -114,6 +114,7 @@ for epoch in range(0, n_epoch):
 
     print('train mean loss={}, accuracy={}, throughput={} images/sec'.format(
         sum_loss / N, sum_accuracy / N, throughput))
+    sys.stdout.flush()
 
     # evaluation
     sum_accuracy = 0
@@ -127,6 +128,7 @@ for epoch in range(0, n_epoch):
         sum_accuracy += float(model.accuracy.data) * len(y.data)
 
     print('test  mean loss={}, accuracy={}'.format(sum_loss / N_test, sum_accuracy / N_test))
+    sys.stdout.flush()
 
 print('save the model') 
 serializers.save_npz('output.model', model)
