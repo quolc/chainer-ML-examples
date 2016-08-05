@@ -100,8 +100,6 @@ for epoch in range(0, n_epoch):
 
     start = time.time()
     for i in range(0, N, batchsize):
-        if i % 10000 == 0:
-            print(i)
         x = chainer.Variable(permed_data[i:i+batchsize])
         y = chainer.Variable(permed_target[i:i+batchsize])
 
