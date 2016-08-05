@@ -120,7 +120,7 @@ for epoch in range(0, n_epoch):
         x = chainer.Variable(xp.array(x_test[i:i+batchsize]))
         y = chainer.Variable(xp.array(y_test[i:i+batchsize]))
 
-        loss = model(x, y)
+        loss = model(x, y, train=False)
         sum_loss += (loss.data) * len(y.data)
         sum_accuracy += float(model.accuracy.data) * len(y.data)
 
