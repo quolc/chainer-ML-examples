@@ -91,7 +91,7 @@ if args.gpu >= 0:
 for epoch in range(0, n_epoch):
     print('epoch', epoch+1)
 
-    perm = xp.random.permutation(N)
+    perm = np.random.permutation(N)
     permed_data = xp.array(x_train[perm])
     permed_target = xp.array(y_train[perm])
 
@@ -117,8 +117,8 @@ for epoch in range(0, n_epoch):
     sum_accuracy = 0
     sum_loss = 0
     for i in range(0, N_test, batchsize):
-        x = chainer.Variable(x_test[i:i+batchsize])
-        y = chainer.Variable(y_test[i:i+batchsize])
+        x = chainer.Variable(xp.array(x_test[i:i+batchsize]))
+        y = chainer.Variable(xp.array(y_test[i:i+batchsize]))
 
         loss = model(x, y)
         sum_loss += (loss.data) * len(y.data)
@@ -127,5 +127,5 @@ for epoch in range(0, n_epoch):
     print('test  mean loss={}, accuracy={}'.format(sum_loss / N_test, sum_accuracy / N_test))
 
 print('save the model') 
-serializers.save_npz('linear.model', model)
+serializers.save_npz('output.model', model)
 
