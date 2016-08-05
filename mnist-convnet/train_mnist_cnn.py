@@ -124,7 +124,7 @@ for epoch in range(0, n_epoch):
         sum_loss += (loss.data) * len(y.data)
         sum_accuracy += float(model.accuracy.data) * len(y.data)
 
-    print('test  mean loss={}, accuracy={}'.format(sum_loss / N, sum_accuracy / N))
+    print('test  mean loss={}, accuracy={}'.format(sum_loss / N_test, sum_accuracy / N_test))
 
 print('save the model') 
 serializers.save_npz('linear.model', model)
