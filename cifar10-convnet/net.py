@@ -39,7 +39,7 @@ class Classifier(chainer.Chain):
             predictor = predictor
         )
 
-    def __call__(self, x, t, train=False):
+    def __call__(self, x, t, train=True):
         y = self.predictor(x, train)
         self.loss = F.softmax_cross_entropy(y, t)
         self.accuracy = F.accuracy(y, t)
