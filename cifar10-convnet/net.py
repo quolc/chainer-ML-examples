@@ -20,8 +20,16 @@ class ConvNet(chainer.Chain):
                 n_ch_in, n_ch_conv, ksize=ksize, pad=(ksize-1)//2),
             conv2 = L.Convolution2D(
                 n_ch_conv, n_ch_conv, ksize=ksize, pad=(ksize-1)//2),
+            conv3 = L.Convolution2D(
+                n_ch_conv, n_ch_conv, ksize=ksize, pad=(ksize-1)//2),
+            conv4 = L.Convolution2D(
+                n_ch_conv, n_ch_conv, ksize=ksize, pad=(ksize-1)//2),
+            conv5 = L.Convolution2D(
+                n_ch_conv, n_ch_conv, ksize=ksize, pad=(ksize-1)//2),
+            conv6 = L.Convolution2D(
+                n_ch_conv, n_ch_conv, ksize=ksize, pad=(ksize-1)//2),
             l1 = L.Linear(
-                (dim_x//2) * (dim_y//2) * n_ch_conv,
+                (dim_x//8) * (dim_y//8) * n_ch_conv,
                 n_unit1),
             l2 = L.Linear(n_unit1, n_out)
         )
@@ -30,8 +38,12 @@ class ConvNet(chainer.Chain):
     def __call__(self, x, train=True):
         h1 = self.activation(self.conv1(x))
         h2 = F.max_pooling_2d(self.activation(self.conv2(h1)), 2)
-        h3 = F.dropout(self.activation(self.l1(h2)), train=train)
-        return self.activation(self.l2(h3))
+        h3 = self.activation(self.conv3(h2))
+        h4 = F.max_pooling_2d(self.activation(self.conv4(h3)), 2)
+        h5 = self.activation(self.conv4(h4))
+        h6 = F.max_pooling_2d(self.activation(self.conv5(h5)), 2)
+        h7 = F.dropout(self.activation(self.l1(h6)), train=train)
+        return self.activation(self.l2(h7))
 
 class Classifier(chainer.Chain):
     def __init__(self, predictor):

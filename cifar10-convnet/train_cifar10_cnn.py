@@ -76,7 +76,7 @@ print('- number of test data: %d' % N_test)
 print('done.')
 
 # prepare network
-model = net.Classifier(net.ConvNet(32, 32, 3, 32, 512, 10))
+model = net.Classifier(net.ConvNet(32, 32, 3, 32, 128, 10))
 
 # initialize optimizer
 if args.optimizer == 'adam':
