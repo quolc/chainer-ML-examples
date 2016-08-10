@@ -69,6 +69,7 @@ N = data.num_train
 
 print('- number of training data: %d' % N)
 #print('- number of test data: %d' % N_test)
+print('- number of labels: %d' % len(caltech['label_names']))
 print('done.')
 
 # prepare network
