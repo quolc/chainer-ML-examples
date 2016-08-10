@@ -13,13 +13,16 @@ num_test = 0
 def loadCaltech101Data():
     print('Loading images...')
     images = []
+    images_test = []
     labels = []
+    labels_test = []
     label_names = []
     label_i = 0
     for item in os.listdir(path_prefix):
         if not os.path.isdir(path_prefix + '/' + item): continue
         label = item
         label_names.append(label)
+        count = 0
         for jpg in os.listdir(path_prefix + '/' + item):
             if jpg.find('.jpg') != -1 or jpg.find('jpeg') != -1:
                 # load jpeg file
@@ -27,17 +30,25 @@ def loadCaltech101Data():
                 if im.shape != (3,227,227):
                     print('skip {}/{}'.format(label, jpg))
                     continue
-                images.append(im)
-                labels.append(label_i)
+                if count < 10:
+                    images_test.append(im)
+                    labels_test.append(label_i)
+                else:
+                    images.append(im)
+                    labels.append(label_i)
+                count += 1
         label_i += 1
         print('.', end='')
         sys.stdout.flush()
-    print('Done. (loaded %d images)' % len(images))
+    print('Done. (loaded %d images)' % len(images) + len(images_test))
 
     x_train = np.asarray(images)
+    x_test = np.asarray(images_test)
     y_train = np.asarray(labels)
-    print(x_train.shape)
-    caltech = {'x_train': x_train, 'y_train': y_train, 'label_names': label_names}
+    y_test = np.asarray(labels_test)
+    caltech = {'x_train': x_train, 'y_train': y_train,
+               'x_test': x_test, 'y_test': y_test,
+               'label_names': label_names}
 
     print('Save output...')
     with open('caltech101.pkl', 'wb') as output:
@@ -51,7 +62,8 @@ def loadCaltech101():
     with open('caltech101.pkl', 'rb') as caltech_pickle:
         caltech = pickle.load(caltech_pickle)
 
-    global num_train
+    global num_train, num_test
     num_train = caltech['x_train'].shape[0]
+    num_test = caltech['x_test'].shape[0]
     return caltech
 

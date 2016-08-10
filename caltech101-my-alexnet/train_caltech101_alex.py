@@ -58,17 +58,17 @@ print('# loading caltech-101 dataset (227x227 cropped)')
 caltech = data.loadCaltech101()
 x_train = caltech['x_train'].astype('float32')
 x_train /= 255
-#x_test = np.asarray(caltech['x_test'], dtype='float32')
-#x_test /= 255
+x_test = np.asarray(caltech['x_test'], dtype='float32')
+x_test /= 255
 
 y_train = np.asarray(caltech['y_train'], dtype='int32')
-#y_test = np.asarray(caltech['y_test'], dtype='int32')
+y_test = np.asarray(caltech['y_test'], dtype='int32')
 
 N = data.num_train
-#N_test = data.num_test
+N_test = data.num_test
 
 print('- number of training data: %d' % N)
-#print('- number of test data: %d' % N_test)
+print('- number of test data: %d' % N_test)
 print('- number of labels: %d' % len(caltech['label_names']))
 print('done.')
 
@@ -114,7 +114,6 @@ for epoch in range(0, n_epoch):
     sys.stdout.flush()
 
     # evaluation
-    '''
     sum_accuracy = 0
     sum_loss = 0
     for i in range(0, N_test, batchsize):
@@ -127,7 +126,6 @@ for epoch in range(0, n_epoch):
 
     print('test  mean loss={}, accuracy={}'.format(sum_loss / N_test, sum_accuracy / N_test))
     sys.stdout.flush()
-    '''
 
 print('save the model') 
 serializers.save_npz('output.model', model)
