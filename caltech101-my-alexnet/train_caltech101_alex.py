@@ -91,7 +91,7 @@ for epoch in range(0, n_epoch):
     print('epoch', epoch+1)
 
     perm = np.random.permutation(N)
-    permed_data = xp.asarray(x_train[perm])
+    permed_data = np.asarray(x_train[perm])
     permed_target = xp.asarray(y_train[perm])
 
     sum_accuracy = 0
@@ -99,7 +99,7 @@ for epoch in range(0, n_epoch):
 
     start = time.time()
     for i in range(0, N, batchsize):
-        x = chainer.Variable(permed_data[i:i+batchsize])
+        x = chainer.Variable(xp.asarray(permed_data[i:i+batchsize]))
         y = chainer.Variable(permed_target[i:i+batchsize])
 
         optimizer.update(model, x, y)
