@@ -28,8 +28,8 @@ class Regression(chainer.Chain):
     def __init__(self, predictor):
         super(Regression, self).__init__(predictor=predictor)
 
-    def __call__(self, x, t):
-        y = self.predictor(x, True)
+    def __call__(self, x, t, train=True):
+        y = self.predictor(x, train)
         self.loss = F.mean_squared_error(y, t)
         report({'loss': self.loss}, self)
         return self.loss

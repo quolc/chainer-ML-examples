@@ -6,7 +6,7 @@ import numpy as np
 
 import chainer
 from chainer import report, computational_graph
-from chainer import optimizers, serializers
+from chainer import optimizers, serializers, cuda
 
 import data
 import net
@@ -71,6 +71,7 @@ mnist['data'] = mnist['data'].astype(np.float32)
 mnist['data'] /= 255
 
 N = data.num_train
+N_test = data.num_test
 y_train, y_test = np.split(mnist['data'].copy(), [N])   # same pixels for auto-encoding
 
 # add noise
@@ -93,6 +94,8 @@ model = Regression(AutoEncoder(28, n_filters, n_units, filter_size, activation))
 # initialize optimizer
 optimizer = optimizers.Adam()
 optimizer.setup(model)
+if args.gpu >= 0:
+    model.to_gpu()
 
 for epoch in range(0, n_epoch):
     print ('epoch', epoch+1)
@@ -116,6 +119,16 @@ for epoch in range(0, n_epoch):
     throughput = N / elapsed_time
 
     print('train mean loss={}, throughput={} images/sec'.format(sum_loss / N, throughput))
+
+    sum_loss = 0
+    test_x = xp.array(x_test)
+    test_y = xp.array(y_test)
+
+    for i in range(0, N_test, batchsize):
+        x = chainer.Variable(test_x[i:i+batchsize])
+        y = chainer.Variable(test_y[i:i+batchsize])
+        sum_loss += model(x, y, False).data * len(y.data)
+    print('test mean loss={}'.format(sum_loss / N_test))
 
 print('save the model')
 serializers.save_npz('{}-{}units_batch{}-epoch{}_noise{}.model'.format(activation, n_units, batchsize, n_epoch, args.noise), model)
