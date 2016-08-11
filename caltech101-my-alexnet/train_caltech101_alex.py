@@ -58,7 +58,7 @@ print('# loading caltech-101 dataset (227x227 cropped)')
 caltech = data.loadCaltech101()
 x_train = caltech['x_train'].astype('float32')
 x_train /= 255
-x_test = np.asarray(caltech['x_test'], dtype='float32')
+x_test = caltech['x_test'].astype('float32')
 x_test /= 255
 
 y_train = np.asarray(caltech['y_train'], dtype='int32')

@@ -11,9 +11,9 @@ class AlexNet(chainer.Chain):
             conv3=L.Convolution2D(256, 384,  3, pad=1),
             conv4=L.Convolution2D(384, 384,  3, pad=1),
             conv5=L.Convolution2D(384, 256,  3, pad=1),
-            fc6=L.Linear(9216, 1024),
-            fc7=L.Linear(1024, 1024),
-            fc8=L.Linear(1024, 101),
+            fc6=L.Linear(9216, 4096),
+            fc7=L.Linear(4096, 4096),
+            fc8=L.Linear(4096, 101),
         )
         self.train = True
 
@@ -30,11 +30,11 @@ class AlexNet(chainer.Chain):
         h = F.relu(self.conv4(h))
         # 13*13 --conv--> 13*13 --pool--> 6*6
         h = F.max_pooling_2d(F.relu(self.conv5(h)), 3, stride=2)
-        # 6*6*256 = 9216 --FC--> 1024
+        # 6*6*256 = 9216 --FC--> 4096
         h = F.dropout(F.relu(self.fc6(h)), train=self.train)
-        # 1024 --FC--> 1024
+        # 4096 --FC--> 4096
         h = F.dropout(F.relu(self.fc7(h)), train=self.train)
-        # 1024 --FC--> 101
+        # 4096 --FC--> 101
         return self.fc8(h)
 
 class Classifier(chainer.Chain):
