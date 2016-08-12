@@ -3,6 +3,15 @@ import chainer.functions as F
 import chainer.links as L
 from chainer import report
 
+# Simple Convolutional AutoEncoder
+# [structure (filter_size = 9, n_units = 100)]
+# (encoding)
+# - input   28*28*1
+# - conv1   28*28*1 -> 20*20*8 (filter 9*9*8)
+# - fc1     3200 -> 100
+# (decoding)
+# - fc2     100 -> 3200
+# - deconv1 20*20*8 -> 28*28*1 (filter 9*9*8)
 class AutoEncoder(chainer.Chain):
     def __init__(self, input_size, n_filters=10, n_units=20, filter_size=9, activation='relu'):
         self.activation = {'relu': F.relu, 'sigmoid': F.sigmoid}[activation]

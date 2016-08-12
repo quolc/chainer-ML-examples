@@ -131,5 +131,7 @@ for epoch in range(0, n_epoch):
     print('test mean loss={}'.format(sum_loss / N_test))
 
 print('save the model')
-serializers.save_npz('{}-{}units_batch{}-epoch{}_noise{}.model'.format(activation, n_units, batchsize, n_epoch, args.noise), model)
+serializers.save_npz('{}_{}x{}filters_{}hidden_epoch{}_noise{}.model'.format(
+    activation, filter_size, n_filters, n_units,
+    n_epoch, args.noise), model)
 
