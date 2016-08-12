@@ -33,6 +33,8 @@ parser.add_argument('--unit', '-u', default=30, type=int,
                     help='number of units')
 parser.add_argument('--activation', '-a', choices=('relu', 'sigmoid'),
                     default='relu', help="activation function")
+parser.add_argument('--alpha', type=float, default=0.001,
+                    help='alpha (only for Adam)')
 
 args = parser.parse_args()
 
@@ -92,7 +94,7 @@ y_test = y_test.reshape((len(y_test), 1, 28, 28))
 model = Regression(AutoEncoder(28, n_filters, n_units, filter_size, activation))
 
 # initialize optimizer
-optimizer = optimizers.Adam()
+optimizer = optimizers.Adam(args.alpha)
 optimizer.setup(model)
 if args.gpu >= 0:
     model.to_gpu()
@@ -129,6 +131,7 @@ for epoch in range(0, n_epoch):
         y = chainer.Variable(test_y[i:i+batchsize])
         sum_loss += model(x, y, False).data * len(y.data)
     print('test mean loss={}'.format(sum_loss / N_test))
+    sys.stdout.flush()
 
 print('save the model')
 serializers.save_npz('{}_{}x{}filters_{}hidden_epoch{}_noise{}.model'.format(
