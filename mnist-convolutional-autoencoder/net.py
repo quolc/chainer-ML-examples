@@ -17,6 +17,7 @@ class AutoEncoder(chainer.Chain):
         self.activation = {'relu': F.relu, 'sigmoid': F.sigmoid}[activation]
         self.n_filters = n_filters
         self.n_units = n_units
+        self.filter_size = filter_size
         self.dim1 = input_size - filter_size + 1
 
         super(AutoEncoder, self).__init__(
