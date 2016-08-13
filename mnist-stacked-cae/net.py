@@ -20,6 +20,9 @@ class DCAE(chainer.Chain):
         self.fc_arch = fc_arch
         self.activation = {'relu': F.relu, 'sigmoid': F.sigmoid}[activation]
 
+        print('[network architecture]')
+        print('input: 1x{}x{}'.format(input_size, input_size))
+
         # layer registration
         n_ch = 1
         dim = 28
@@ -31,29 +34,41 @@ class DCAE(chainer.Chain):
         for i in range(len(conv_arch)):
             # convolution
             layer = conv_arch[i]
+            if dim < layer[0]:
+                raise 'too large convolution size'
             conv = L.Convolution2D(n_ch, layer[1], ksize=layer[0], pad=layer[2])
             self.add_link('conv%d' % i, conv)
             self.convs.append(conv)
+            print('conv{}: {}x{}x{} (pad{})'.format(
+                i, layer[1], layer[0], layer[0], layer[2]))
+            dim = dim - (layer[0] - 1) + layer[2] * 2
+            print(' -> {}x{}x{}'.format(
+                layer[1], dim, dim))
             # deconvolution
             deconv = L.Deconvolution2D(layer[1], n_ch, ksize=layer[0], pad=layer[2])
             self.add_link('deconv%d' % i, deconv)
             self.deconvs.append(deconv)
             # update n_ch and dim
             n_ch = layer[1]
-            dim = dim - (layer[0] - 1) + layer[2] * 2
             if layer[3] > 1: # pooling
+                if dim % layer[3] != 0:
+                    raise 'pooling size non-dividable'
                 dim = dim // layer[3]
+                print('pool{}: {}x{}'.format(i, layer[3], layer[3]))
+                print(' -> {}x{}x{}'.format(layer[1], dim, dim))
             self.dims.append(dim)
         units = dim*dim*n_ch
         for i in range(len(fc_arch)):
             l_enc = L.Linear(units, fc_arch[i])
             self.add_link('enc%d' % i, l_enc)
             self.encs.append(l_enc)
+            print('fc{}: {} -> {}'.format(i, units, fc_arch[i]))
             l_dec = L.Linear(fc_arch[i], units)
             self.add_link('dec%d' % i, l_dec)
             self.decs.append(l_dec)
             # update dim
             units = fc_arch[i]
+        print()
 
     def __call__(self, x, train):
         h = x

@@ -8,6 +8,7 @@ nohup.out
 *.dot
 *.pyc
 *.log
+*.out
 
 */__pycache__
 */tmp
