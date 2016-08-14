@@ -145,6 +145,7 @@ for epoch in range(0, n_epoch):
     throughput = N / elapsed_time
 
     print('train mean loss={}, throughput={} images/sec'.format(sum_loss / N, throughput))
+    last_train_accuracy = sum_loss / N
 
     sum_loss = 0
     test_x = xp.array(x_test)
@@ -155,6 +156,7 @@ for epoch in range(0, n_epoch):
         y = chainer.Variable(test_y[i:i+batchsize])
         sum_loss += model(x, y, False).data * len(y.data)
     print('test mean loss={}'.format(sum_loss / N_test))
+    last_test_accuracy = sum_loss / N_test
     sys.stdout.flush()
 
 print('save the model')
@@ -162,9 +164,11 @@ modelname = '{}.model'.format(dt.now().strftime('%m%d%H%M'))
 serializers.save_npz(modelname, model)
 
 with open('arch.txt', 'a') as f:
-    f.write(str(modelname) + '\n')
+    f.write('[%s]\n' % modelname)
     f.write('conv:\t' + str(layers) + '\n')
     f.write('fc:\t' + str(fc_units) + '\n')
     f.write('alpha:\t' + str(args.alpha) + '\n')
     f.write('epoch:\t' + str(n_epoch) + '\n')
     f.write('noise:\t' + str(args.noise) + '\n\n')
+    f.write('train:\t{}, test:\t{}'.format(last_train_accuracy, last_test_accuracy))
+    f.write('\n\n')
