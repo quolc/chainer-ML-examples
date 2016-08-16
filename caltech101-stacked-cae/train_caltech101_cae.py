@@ -9,12 +9,12 @@ import chainer
 from chainer import report, computational_graph
 from chainer import optimizers, serializers, cuda
 
-import data
+import data_caltech101 as data
 import net
 from net import DCAE
 from net import Regression
 
-parser = argparse.ArgumentParser(description="MNIST Auto-Encoder Trainer in Chainer")
+parser = argparse.ArgumentParser(description="Caltech101 Auto-Encoder Trainer in Chainer")
 
 # computation/learning settings
 parser.add_argument('--dry', action="store_true")
@@ -57,7 +57,7 @@ if fc_units == [0]:
 
 activation = args.activation
 
-print('MNIST Deep Convolutional Auto Encoder in Chainer')
+print('Caltech101 Deep Convolutional Auto Encoder in Chainer')
 print()
 
 print('[settings]')
@@ -82,27 +82,31 @@ if args.gpu >= 0:
     xp = cuda.cupy
 
 # prepare dataset
-print('load MNIST dataset')
-mnist = data.load_mnist_data()
-mnist['data'] = mnist['data'].astype(np.float32)
-mnist['data'] /= 255
+print('load caltech-101 dataset (227x227 cropped)')
+caltech = data.loadCaltech101()
+x_train = caltech['x_train'].astype('float32')
+x_train /= 255
+x_test = caltech['x_test'].astype('float32')
+x_test /= 255
+y_train = x_train.copy()
+y_test = x_test.copy()
 
 N = data.num_train
 N_test = data.num_test
-y_train, y_test = np.split(mnist['data'].copy(), [N])   # same pixels for auto-encoding
+print('N: {}, N_test: {}'.format(N, N_test))
 
 # add noise
 if args.noise > 0:
-    for data in mnist['data']:
-        perm = np.random.permutation(mnist['data'].shape[1])[:int(mnist['data'].shape[1] * args.noise)]
-        data[perm] = 0.0
-x_train, x_test = np.split(mnist['data'], [N])          # pixels
+    for data in x_train:
+        for ch in range(0, 3):
+            perm = np.random.permutation(x_train.shape[1])[:int(x_train.shape[1] * args.noise)]
+            data[ch][perm] = 0.0
 
 # convert to tensor repr
-x_train = x_train.reshape((len(x_train), 1, 28, 28))
-x_test = x_test.reshape((len(x_test), 1, 28, 28))
-y_train = y_train.reshape((len(y_train), 1, 28, 28))
-y_test = y_test.reshape((len(y_test), 1, 28, 28))
+x_train = x_train.reshape((len(x_train), 3, 227, 227))
+x_test = x_test.reshape((len(x_test), 3, 227, 227))
+y_train = y_train.reshape((len(y_train), 3, 227, 227))
+y_test = y_test.reshape((len(y_test), 3, 227, 227))
 print('done.')
 print()
 
@@ -115,7 +119,7 @@ for i in range(len(channels)):
         poolings.append(0)
     layer = (filter_sizes[i], channels[i], pads[i], poolings[i])
     layers.append(layer)
-model = Regression(DCAE(28, layers, fc_units, activation))
+model = Regression(DCAE(227, layers, fc_units, activation))
 
 # initialize optimizer
 optimizer = optimizers.Adam(args.alpha)
@@ -129,19 +133,20 @@ for epoch in range(0, n_epoch):
     print ('epoch', epoch+1)
 
     perm = np.random.permutation(N)
-    permed_x = xp.array(x_train[perm])
-    permed_y = xp.array(y_train[perm])
+    permed_x = np.array(x_train[perm])
+    permed_y = np.array(y_train[perm])
 
     sum_loss = 0
 
     start = time.time()
     for i in range(0, N, batchsize):
-        x = chainer.Variable(permed_x[i:i+batchsize])
-        t = chainer.Variable(permed_y[i:i+batchsize])
+        x = chainer.Variable(xp.asarray(permed_x[i:i+batchsize]))
+        y = chainer.Variable(xp.asarray(permed_y[i:i+batchsize]))
+        if len(x.data) < batchsize:
+            break
 
-        optimizer.update(model, x, t)
-
-        sum_loss += float(model.loss.data) * len(t.data)
+        optimizer.update(model, x, y)
+        sum_loss += float(model.loss.data) * y.data.shape[0]
     end = time.time()
     elapsed_time = end - start
     throughput = N / elapsed_time
@@ -150,12 +155,9 @@ for epoch in range(0, n_epoch):
     last_train_accuracy = sum_loss / N
 
     sum_loss = 0
-    test_x = xp.array(x_test)
-    test_y = xp.array(y_test)
-
     for i in range(0, N_test, batchsize):
-        x = chainer.Variable(test_x[i:i+batchsize])
-        y = chainer.Variable(test_y[i:i+batchsize])
+        x = chainer.Variable(xp.asarray(x_test[i:i+batchsize]))
+        y = chainer.Variable(xp.asarray(y_test[i:i+batchsize]))
         sum_loss += model(x, y, False).data * len(y.data)
     print('test mean loss={}'.format(sum_loss / N_test))
     last_test_accuracy = sum_loss / N_test
